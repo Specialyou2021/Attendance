@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special You — Attendance</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--s1:#12121a;--s2:#1a1a26;--bd:#2a2a3e;--ac:#6c63ff;--ac2:#ff6584;--gn:#22c55e;--rd:#ef4444;--yw:#f59e0b;--bl:#3b82f6;--tx:#e8e8f0;--mt:#6b6b8a;--rr:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(108,99,255,.1),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,101,132,.07),transparent 50%);pointer-events:none;z-index:0;}
+.w{position:relative;z-index:1;max-width:500px;margin:0 auto;padding:16px 14px 40px;}
+.screen{display:none;}.screen.active{display:block;}
+/* Loading */
+.lov{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.lov .br{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}.lov .br span{color:var(--ac);}
+.lb-wrap{width:150px;height:3px;background:var(--bd);border-radius:3px;overflow:hidden;}
+.lb-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));animation:ld 1.5s ease-in-out infinite;}
+@keyframes ld{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+/* Centered card */
+.ctr{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+.box{background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:28px 22px;width:100%;max-width:380px;}
+.brand{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;text-align:center;}.brand span{color:var(--ac);}
+.brand-s{text-align:center;font-size:11px;color:var(--mt);letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;margin-top:3px;}
+.f{margin-bottom:12px;}.f label{font-size:11px;color:var(--mt);font-weight:600;letter-spacing:.7px;text-transform:uppercase;display:block;margin-bottom:5px;}
+.f input{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:11px 14px;color:var(--tx);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.f input:focus{border-color:var(--ac);}
+.btn{width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--ac),#9b59b6);color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;transition:all .2s;margin-top:2px;}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px rgba(108,99,255,.4);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:9px;padding:8px 12px;font-size:13px;color:var(--rd);margin-top:8px;display:none;}
+/* Toggle login */
+.tgl{display:flex;background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:3px;margin-bottom:16px;}
+.tb{flex:1;padding:8px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--mt);transition:all .2s;}
+.tb.on{background:var(--ac);color:#fff;font-weight:700;}
+/* App header */
+.ah{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;}
+.al{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}.al span{color:var(--ac);}
+.chip{display:flex;align-items:center;gap:7px;background:var(--s1);border:1px solid var(--bd);border-radius:18px;padding:5px 11px 5px 6px;cursor:pointer;}
+.cav{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:#fff;}
+.cn{font-size:12px;font-weight:500;}.cr{font-size:10px;color:var(--ac);font-weight:600;}
+/* Date bar */
+.db{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rr);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.db .dt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}.db .tm{font-size:12px;color:var(--mt);}
+.dy{background:rgba(108,99,255,.15);color:var(--ac);padding:3px 11px;border-radius:18px;font-size:11px;font-weight:600;}
+/* Location bar */
+.locbar{border-radius:var(--rr);padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:12px;border:1px solid;transition:all .4s;}
+.locbar.ck{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);}
+.locbar.ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);}
+.locbar.no{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ck .ldot{background:var(--yw);animation:pp 1.5s infinite;}
+.ok .ldot{background:var(--gn);}.no .ldot{background:var(--rd);}
+@keyframes pp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+/* Tabs */
+.tabs{display:flex;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rr);padding:3px;margin-bottom:16px;}
+.tab{flex:1;padding:8px 3px;text-align:center;border-radius:11px;cursor:pointer;font-size:11px;font-weight:500;color:var(--mt);transition:all .2s;}
+.tab.on{background:var(--ac);color:#fff;font-weight:700;}
+/* Card */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--rr);padding:14px;margin-bottom:11px;}
+.cl{font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600;}
+/* CHECK-IN / CHECK-OUT MAIN BUTTONS */
+.checkinout-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;}
+.co-btn{padding:22px 10px;border-radius:16px;border:2px solid;cursor:pointer;font-family:'Syne',sans-serif;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .25s;background:transparent;position:relative;overflow:hidden;}
+.co-btn .ico{font-size:28px;transition:transform .2s;}
+.co-btn .lbl{font-size:15px;letter-spacing:.5px;}
+.co-btn .sub{font-size:10px;font-weight:400;font-family:'DM Sans',sans-serif;opacity:.7;}
+/* Check In */
+.btn-cin{border-color:var(--gn);color:var(--gn);}
+.btn-cin:hover:not(:disabled){background:var(--gn);color:#fff;transform:translateY(-3px);box-shadow:0 10px 28px rgba(34,197,94,.35);}
+.btn-cin:hover .ico{transform:scale(1.1);}
+.btn-cin.done{background:rgba(34,197,94,.12);border-color:var(--gn);}
+/* Check Out */
+.btn-cout{border-color:var(--bl);color:var(--bl);}
+.btn-cout:hover:not(:disabled){background:var(--bl);color:#fff;transform:translateY(-3px);box-shadow:0 10px 28px rgba(59,130,246,.35);}
+.btn-cout:hover .ico{transform:scale(1.1);}
+.btn-cout.done{background:rgba(59,130,246,.12);border-color:var(--bl);}
+.co-btn:disabled{opacity:.3;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+/* Status card */
+.status-card{border-radius:var(--rr);padding:13px 16px;margin-bottom:11px;border:1px solid;}
+.status-card.working{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);}
+.status-card.done2{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.3);}
+.status-card.halfday{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);}
+.status-card.idle{background:rgba(107,107,138,.06);border-color:var(--bd);}
+.sc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.sc-meta{font-size:11px;color:var(--mt);margin-top:3px;}
+.sc-times{display:flex;gap:16px;margin-top:10px;}
+.sc-time-item{display:flex;flex-direction:column;gap:2px;}
+.sc-time-lbl{font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.sc-time-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.sc-time-val.gn{color:var(--gn);}
+.sc-time-val.bl{color:var(--bl);}
+.sc-hours{margin-left:auto;text-align:right;}
+.sc-hours .h-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ac);}
+.sc-hours .h-lbl{font-size:10px;color:var(--mt);}
+/* Half day badge */
+.hd-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.15);color:var(--yw);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;margin-top:8px;}
+/* Pivot table */
+.pivot-wrap{overflow-x:auto;margin-top:4px;border-radius:11px;border:1px solid var(--bd);}
+.pivot-table{border-collapse:collapse;width:100%;min-width:500px;}
+.pivot-table th,.pivot-table td{padding:0;border:1px solid var(--bd);}
+.pt-corner{background:var(--s2);padding:8px 12px;font-size:10px;font-weight:700;color:var(--ac);text-align:left;font-family:'Syne',sans-serif;min-width:130px;}
+.pt-date-hdr{background:var(--s2);padding:0;text-align:center;min-width:100px;}
+.pt-date-top{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--tx);padding:7px 4px 3px;border-bottom:1px solid var(--bd);}
+.pt-date-sub{display:flex;}
+.pt-sub-cell{flex:1;font-size:9px;font-weight:600;color:var(--mt);padding:3px 4px;text-align:center;text-transform:uppercase;letter-spacing:.4px;}
+.pt-sub-cell:first-child{border-right:1px solid var(--bd);color:var(--gn);}
+.pt-sub-cell:last-child{color:var(--bl);}
+.pt-worker-cell{background:var(--s1);padding:8px 10px;min-width:130px;}
+.pt-worker-name{font-size:12px;font-weight:600;}
+.pt-worker-id{font-size:10px;color:var(--ac);font-weight:600;font-family:'Syne',sans-serif;}
+.pt-time-cell{text-align:center;padding:0;min-width:50px;}
+.pt-time-in,.pt-time-out{padding:7px 4px;font-size:11px;display:block;text-align:center;}
+.pt-time-in{color:var(--gn);font-weight:600;border-right:1px solid var(--bd);}
+.pt-time-out{color:var(--bl);font-weight:600;}
+.pt-empty{color:var(--mt);font-size:12px;}
+.pt-hd{background:rgba(245,158,11,.08);}
+.pt-hd .pt-time-in,.pt-hd .pt-time-out{color:var(--yw);}
+tr:nth-child(even) .pt-worker-cell{background:var(--s2);}
+tr:nth-child(even) .pt-time-cell{background:rgba(255,255,255,.02);}
+.pt-today-col .pt-date-top{color:var(--ac);}
+/* History / Records */
+.hl{display:flex;flex-direction:column;gap:7px;max-height:400px;overflow-y:auto;}
+.hi{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:9px;}
+.hav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.hn{font-size:13px;font-weight:500;}.hm{font-size:11px;color:var(--mt);margin-top:1px;}
+.hi-times{margin-left:auto;text-align:right;flex-shrink:0;}
+.hi-in{font-size:12px;font-weight:600;color:var(--gn);}
+.hi-out{font-size:12px;font-weight:600;color:var(--bl);}
+.hi-hrs{font-size:10px;color:var(--mt);}
+.hd-pill{font-size:10px;background:rgba(245,158,11,.15);color:var(--yw);border-radius:5px;padding:1px 6px;font-weight:600;}
+/* Admin */
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.sc2{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:12px;text-align:center;}
+.sn{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}.sl{font-size:10px;color:var(--mt);margin-top:2px;}
+.sc2.gn .sn{color:var(--gn);}.sc2.rd .sn{color:var(--rd);}.sc2.pu .sn{color:var(--ac);}.sc2.yw .sn{color:var(--yw);}
+/* Worker admin */
+.wai{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:11px 13px;margin-bottom:7px;}
+.wat{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.waid2{background:rgba(108,99,255,.15);color:var(--ac);padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;}
+.wan{font-size:13px;font-weight:600;flex:1;}
+.wad{width:7px;height:7px;border-radius:50%;background:var(--gn);flex-shrink:0;}.wad.off{background:var(--mt);}
+.wag{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;}
+.waf{display:flex;flex-direction:column;gap:1px;}
+.wal{font-size:10px;color:var(--mt);font-weight:600;}.wav{font-size:12px;}
+.wapw{font-family:monospace;font-size:12px;letter-spacing:2px;color:var(--yw);}
+.waa{display:flex;gap:5px;}
+.wab{padding:4px 10px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;transition:opacity .2s;}.wab:hover{opacity:.75;}
+.wab.ed{background:rgba(108,99,255,.15);color:var(--ac);}
+.wab.dl{background:rgba(239,68,68,.1);color:var(--rd);}
+.wab.tg{background:rgba(34,197,94,.1);color:var(--gn);}
+.wab.tg.off{background:rgba(107,107,138,.1);color:var(--mt);}
+/* Add form */
+.af{background:var(--s2);border:1px solid var(--bd);border-radius:13px;padding:13px;}
+.aft{font-size:12px;font-weight:700;font-family:'Syne',sans-serif;margin-bottom:11px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.ff{display:flex;flex-direction:column;gap:3px;}
+.ff label{font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.ff input{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:8px 10px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.ff input:focus{border-color:var(--ac);}
+/* Config */
+.cr2{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+.cl2{font-size:11px;color:var(--mt);font-weight:600;}
+.ci{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:8px 12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color .2s;}
+.ci:focus{border-color:var(--ac);}
+.bsv{background:var(--ac);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.ib{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:11px;padding:12px;font-size:12px;color:var(--mt);line-height:1.7;margin-top:10px;}
+.ib strong{color:var(--ac);}
+/* Filter row */
+.hfr{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.hf{padding:5px 11px;border-radius:18px;border:1px solid var(--bd);background:var(--s2);color:var(--mt);font-size:12px;cursor:pointer;transition:all .2s;}
+.hf.on{border-color:var(--ac);color:var(--ac);background:rgba(108,99,255,.1);}
+/* Modal */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;}
+.mov.op{display:flex;}
+.mo{background:var(--s1);border:1px solid var(--bd);border-radius:18px;padding:20px;width:100%;max-width:320px;}
+.mot{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;}
+.moa{display:flex;gap:7px;margin-top:12px;}
+.mb{flex:1;padding:9px;border-radius:9px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
+.mb.cx{background:var(--s2);color:var(--mt);}.mb.ok{background:var(--ac);color:#fff;}
+.mi{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;margin-bottom:8px;}
+.mi:focus{border-color:var(--ac);}
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s2);border:1px solid var(--bd);border-radius:13px;padding:10px 17px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:999;max-width:300px;width:90%;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(34,197,94,.4);}.toast.error{border-color:rgba(239,68,68,.4);}
+.toast.info{border-color:rgba(108,99,255,.4);}
+/* Panel */
+.panel{display:none;}.panel.on{display:block;animation:fu .3s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:28px;color:var(--mt);font-size:13px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="lov" id="lov">
+  <div class="br">Special <span>You</span> ✦</div>
+  <div class="lb-wrap"><div class="lb-fill"></div></div>
+  <div style="font-size:13px;color:var(--mt)" id="lmsg">App load ho rahi hai...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="ss-login" class="screen">
+<div class="ctr"><div class="box">
+  <div class="brand">Special <span>You</span> ✦</div>
+  <div class="brand-s">Attendance System</div>
+  <div class="tgl">
+    <div class="tb on" id="ltw" onclick="switchLT('worker')">👷 Worker</div>
+    <div class="tb" id="lta" onclick="switchLT('admin')">🔐 Admin</div>
+  </div>
+  <div id="wlf">
+    <div class="f"><label>Worker ID ya Username</label><input type="text" id="wId" placeholder="W001 ya ramesh" autocomplete="off"></div>
+    <div class="f"><label>Password</label><input type="password" id="wPw" placeholder="••••••••"></div>
+  </div>
+  <div id="alf" style="display:none">
+    <div class="f"><label>Admin Password</label><input type="password" id="aPw" placeholder="Admin password"></div>
+  </div>
+  <button class="btn" id="loginBtn" onclick="doLogin()">Login Karein →</button>
+  <div class="err" id="loginErr"></div>
+</div></div>
+</div>
+
+<!-- WORKER SCREEN -->
+<div id="ss-worker" class="screen">
+<div class="w">
+  <div class="ah">
+    <div class="al">Special <span>You</span></div>
+    <div class="chip" onclick="logout()">
+      <div class="cav" id="wcav">R</div>
+      <div><div class="cn" id="wcn">Worker</div><div class="cr" id="wcr">Logout</div></div>
+    </div>
+  </div>
+  <div class="db"><div><div class="dt" id="wdt">—</div><div class="tm" id="wtm">—</div></div><div class="dy" id="wdy">—</div></div>
+  <div class="locbar ck" id="locbar">
+    <span style="font-size:18px" id="loci">📍</span>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500" id="loct">Location check ho rahi hai...</div><div style="font-size:11px;color:var(--mt)" id="locs">Please wait</div></div>
+    <div class="ldot"></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" onclick="swWT('checkin')">⏱ Attendance</div>
+    <div class="tab" onclick="swWT('history')">📋 My History</div>
+  </div>
+
+  <!-- Check-in/out Panel -->
+  <div class="panel on" id="wp-checkin">
+    <!-- Today status card -->
+    <div id="statusCard" class="status-card idle">
+      <div class="sc-title" id="scTitle">Aaj abhi tak koi entry nahi</div>
+      <div class="sc-meta" id="scMeta">Check-in karo pehle</div>
+      <div class="sc-times" id="scTimes" style="display:none">
+        <div class="sc-time-item">
+          <span class="sc-time-lbl">Check In</span>
+          <span class="sc-time-val gn" id="scIn">—</span>
+        </div>
+        <div class="sc-time-item">
+          <span class="sc-time-lbl">Check Out</span>
+          <span class="sc-time-val bl" id="scOut">—</span>
+        </div>
+        <div class="sc-hours" id="scHours" style="display:none">
+          <div class="h-num" id="scHNum">0</div>
+          <div class="h-lbl">hours</div>
+        </div>
+      </div>
+      <div id="hdBadge" style="display:none"><span class="hd-badge">⚡ Half Day</span></div>
+    </div>
+
+    <!-- Check In / Check Out buttons -->
+    <div class="checkinout-wrap">
+      <button class="co-btn btn-cin" id="btnCin" onclick="doCheckIn()">
+        <span class="ico">🟢</span>
+        <span class="lbl">CHECK IN</span>
+        <span class="sub" id="cinSub">Office mein aate hi dabao</span>
+      </button>
+      <button class="co-btn btn-cout" id="btnCout" onclick="doCheckOut()">
+        <span class="ico">🔵</span>
+        <span class="lbl">CHECK OUT</span>
+        <span class="sub" id="coutSub">Jaate waqt dabao</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- History Panel -->
+  <div class="panel" id="wp-history">
+    <div class="card">
+      <div class="cl">Meri Attendance History</div>
+      <div class="hl" id="whist"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="ss-admin" class="screen">
+<div class="w">
+  <div class="ah">
+    <div class="al">Special <span>You</span> <span style="font-size:10px;color:var(--ac2);font-family:'DM Sans'">⬡ Admin</span></div>
+    <div class="chip" onclick="logout()">
+      <div class="cav" style="background:linear-gradient(135deg,#ff6584,#f59e0b)">A</div>
+      <div><div class="cn">Admin</div><div class="cr">Logout →</div></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" onclick="swAT('dash')">📊 Dashboard</div>
+    <div class="tab" onclick="swAT('pivot')">📅 Pivot View</div>
+    <div class="tab" onclick="swAT('workers')">👷 Workers</div>
+    <div class="tab" onclick="swAT('settings')">⚙️ Setup</div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="panel on" id="ap-dash">
+    <div class="db"><div><div class="dt" id="adt">—</div><div class="tm" id="atm">—</div></div><div class="dy" id="ady">—</div></div>
+    <div class="sr">
+      <div class="sc2 pu"><div class="sn" id="stt">—</div><div class="sl">Workers</div></div>
+      <div class="sc2 gn"><div class="sn" id="stp">—</div><div class="sl">In Today</div></div>
+      <div class="sc2 yw"><div class="sn" id="sthd">—</div><div class="sl">Half Day</div></div>
+    </div>
+    <div class="card"><div class="cl">Aaj ki Live Status</div><div class="hl" id="todayList"></div></div>
+  </div>
+
+  <!-- Pivot View -->
+  <div class="panel" id="ap-pivot">
+    <div class="card" style="padding:12px 10px">
+      <div class="cl">Date-wise Attendance Table</div>
+      <div class="hfr" id="pivotWeekFilter">
+        <button class="hf on" onclick="setPivotDays(7,this)">Last 7 Days</button>
+        <button class="hf" onclick="setPivotDays(14,this)">14 Days</button>
+        <button class="hf" onclick="setPivotDays(30,this)">30 Days</button>
+      </div>
+      <div class="pivot-wrap" id="pivotWrap"></div>
+    </div>
+  </div>
+
+  <!-- Workers -->
+  <div class="panel" id="ap-workers">
+    <div id="walist" style="margin-bottom:12px;"></div>
+    <div class="af">
+      <div class="aft">✦ Naya Worker Add Karein</div>
+      <div class="fg">
+        <div class="ff"><label>Full Name</label><input type="text" id="nwN" placeholder="Ramesh Kumar"></div>
+        <div class="ff"><label>Role</label><input type="text" id="nwR" placeholder="Packing"></div>
+        <div class="ff"><label>Username</label><input type="text" id="nwU" placeholder="ramesh"></div>
+        <div class="ff"><label>Password</label><input type="text" id="nwP" placeholder="pass123"></div>
+      </div>
+      <button class="btn" style="margin-top:0" onclick="addW()">+ Worker Add Karein</button>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="panel" id="ap-settings">
+    <div class="card">
+      <div class="cl">Apps Script URL</div>
+      <div class="cr2"><span class="cl2">Web App URL</span><input class="ci" type="text" id="cfgUrl"></div>
+      <div class="cr2"><span class="cl2">Admin Password Change</span><input class="ci" type="password" id="cfgAp" placeholder="Khali = change nahi hoga"></div>
+      <button class="bsv" onclick="saveCfg()">💾 Save</button>
+    </div>
+    <div class="card">
+      <div class="cl">Office Location</div>
+      <div class="cr2"><span class="cl2">Latitude</span><input class="ci" type="number" id="cfgLat" step="0.000001"></div>
+      <div class="cr2"><span class="cl2">Longitude</span><input class="ci" type="number" id="cfgLng" step="0.000001"></div>
+      <div class="cr2"><span class="cl2">Radius (meters)</span><input class="ci" type="number" id="cfgRad"></div>
+      <button class="bsv" onclick="saveLoc()">📍 Save Location</button>
+      <button class="bsv" style="margin-left:8px;background:var(--gn);" onclick="useLoc()">🎯 Current Location</button>
+    </div>
+    <div class="card">
+      <div class="cl">Half Day Setting</div>
+      <div class="cr2"><span class="cl2">Half Day agar kam ghante (default: 5 hours)</span><input class="ci" type="number" id="cfgHD" placeholder="5" min="1" max="12"></div>
+      <button class="bsv" onclick="saveHD()">💾 Save</button>
+      <div class="ib" style="margin-top:10px;"><strong>Half Day Logic:</strong> Agar worker ne check-out kiya aur total hours &lt; set value → automatically Half Day mark ho jaata hai.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Edit Modal -->
+<div class="mov" id="em">
+<div class="mo">
+  <div class="mot">Worker Edit Karein</div>
+  <input type="hidden" id="eId">
+  <div class="ff" style="margin-bottom:8px"><label>Full Name</label><input class="mi" type="text" id="eN"></div>
+  <div class="ff" style="margin-bottom:8px"><label>Role</label><input class="mi" type="text" id="eR"></div>
+  <div class="ff" style="margin-bottom:8px"><label>Username</label><input class="mi" type="text" id="eU"></div>
+  <div class="ff"><label>Password</label><input class="mi" type="text" id="eP"></div>
+  <div class="moa"><button class="mb cx" onclick="cm()">Cancel</button><button class="mb ok" onclick="se()">Save</button></div>
+</div>
+</div>
+
+<div class="toast" id="toast"><span id="ti">✅</span><span id="tm2"></span></div>
+
+<script>
+// ══ CONFIG ══
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkroB5qdS3OK09teb8HauxMkPp3bQo-8_RyDRNz9Y4KkTMTUHdwhza0ebsG5TAmUJbpA/exec";
+const HALF_DAY_HOURS = () => parseFloat(localStorage.getItem('sy_hd_hours') || '5');
+
+// ══ STATE ══
+let workers=[], allRec=[], curUser=null, locOK=false, coords=null, ltype='worker', cfg={}, pivotDays=7;
+
+// ══ API ══
+async function api(params){
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url, {method:'GET'});
+  return await res.json();
+}
+
+// ══ INIT ══
+async function init(){
+  lmsg('Google Sheet se data load ho raha hai...');
+  try{
+    const [wr, cr] = await Promise.all([api({action:'getWorkers'}), api({action:'getConfig'})]);
+    if(!wr.success) throw new Error(wr.error || 'Workers load fail');
+    workers = wr.workers;
+    cfg = cr;
+    hide();
+    show('login');
+  } catch(e){
+    hide();
+    show('login');
+    toast('error','⚠️','Sheet load fail — check internet ya URL');
+  }
+}
+
+function lmsg(m){document.getElementById('lmsg').textContent=m;}
+function hide(){document.getElementById('lov').style.display='none';}
+function show(s){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.getElementById('ss-'+s).classList.add('active');}
+
+// ══ LOGIN ══
+function switchLT(t){
+  ltype=t;
+  document.getElementById('ltw').classList.toggle('on',t==='worker');
+  document.getElementById('lta').classList.toggle('on',t==='admin');
+  document.getElementById('wlf').style.display=t==='worker'?'block':'none';
+  document.getElementById('alf').style.display=t==='admin'?'block':'none';
+  document.getElementById('loginErr').style.display='none';
+}
+
+async function doLogin(){
+  const err=document.getElementById('loginErr'), btn=document.getElementById('loginBtn');
+  err.style.display='none'; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Checking...';
+  if(ltype==='admin'){
+    const pw=document.getElementById('aPw').value;
+    if(pw===cfg.adminPw){curUser={type:'admin'};show('admin');await initAdmin();}
+    else{err.style.display='block';err.textContent='❌ Galat admin password!';}
+    btn.disabled=false;btn.textContent='Login Karein →';return;
+  }
+  const id=document.getElementById('wId').value.trim().toLowerCase();
+  const pw=document.getElementById('wPw').value;
+  const w=workers.find(x=>x.active&&(x.id.toLowerCase()===id||x.username.toLowerCase()===id)&&x.password===pw);
+  if(w){curUser={type:'worker',worker:w};show('worker');initWorker();}
+  else{err.style.display='block';err.textContent='❌ Galat ID ya password!';}
+  btn.disabled=false;btn.textContent='Login Karein →';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function logout(){curUser=null;allRec=[];['wId','wPw','aPw'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});show('login');}
+
+// ══ WORKER INIT ══
+function initWorker(){
+  const w=curUser.worker;
+  document.getElementById('wcav').textContent=w.name.charAt(0);
+  document.getElementById('wcn').textContent=w.name.split(' ')[0];
+  document.getElementById('wcr').textContent=`${w.role} · ${w.id}`;
+  clock(); checkLoc();
+  loadMyRecords();
+}
+
+async function loadMyRecords(){
+  try{
+    const r=await api({action:'getAttendance', workerId:curUser.worker.id});
+    if(r.success){ allRec=r.records; updateStatusCard(); renderWHist(); }
+  }catch(e){}
+}
+
+// ══ TODAY STATUS ══
+function getTodayRecord(){
+  const today=new Date().toLocaleDateString('en-IN');
+  return allRec.find(r=>r.date===today);
+}
+
+function calcHours(inTime, outTime){
+  if(!inTime||!outTime) return null;
+  try{
+    const parseT = t => {
+      const [time,mer]=t.split(' ');
+      let [h,m]=time.split(':').map(Number);
+      if(mer==='PM'&&h!==12) h+=12;
+      if(mer==='AM'&&h===12) h=0;
+      return h*60+m;
+    };
+    const diff=(parseT(outTime)-parseT(inTime))/60;
+    return diff>0?diff:null;
+  }catch{return null;}
+}
+
+function updateStatusCard(){
+  const rec=getTodayRecord();
+  const card=document.getElementById('statusCard');
+  const cin=document.getElementById('btnCin');
+  const cout=document.getElementById('btnCout');
+  const cinSub=document.getElementById('cinSub');
+  const coutSub=document.getElementById('coutSub');
+
+  if(!rec){
+    // No record today
+    card.className='status-card idle';
+    document.getElementById('scTitle').textContent='Aaj abhi tak koi entry nahi';
+    document.getElementById('scMeta').textContent='Check-in karo pehle';
+    document.getElementById('scTimes').style.display='none';
+    document.getElementById('scHours').style.display='none';
+    document.getElementById('hdBadge').style.display='none';
+    cin.disabled=false; cin.classList.remove('done');
+    cout.disabled=true; cout.classList.remove('done');
+    cinSub.textContent='Office mein aate hi dabao';
+    coutSub.textContent='Pehle check-in karo';
+    return;
+  }
+
+  document.getElementById('scTimes').style.display='flex';
+  document.getElementById('scIn').textContent=rec.checkIn||'—';
+  document.getElementById('scOut').textContent=rec.checkOut||'—';
+
+  if(rec.checkIn && !rec.checkOut){
+    // Checked in, not out yet
+    card.className='status-card working';
+    document.getElementById('scTitle').textContent='✅ Aaj Office mein ho';
+    document.getElementById('scMeta').textContent=`Check-in: ${rec.checkIn} · Abhi kaam chal raha hai`;
+    document.getElementById('scHours').style.display='none';
+    document.getElementById('hdBadge').style.display='none';
+    cin.disabled=true; cin.classList.add('done');
+    cout.disabled=false; cout.classList.remove('done');
+    cinSub.textContent=`${rec.checkIn} pe check-in hua`;
+    coutSub.textContent='Jaate waqt dabao';
+  } else if(rec.checkIn && rec.checkOut){
+    // Full day done
+    const hrs=calcHours(rec.checkIn, rec.checkOut);
+    const isHD=hrs!==null && hrs<HALF_DAY_HOURS();
+    card.className=isHD?'status-card halfday':'status-card done2';
+    const hrsText=hrs?`${hrs.toFixed(1)} hrs`:'—';
+    document.getElementById('scTitle').textContent=isHD?'⚡ Half Day':'✅ Din complete!';
+    document.getElementById('scMeta').textContent=`Total: ${hrsText} kaam kiya`;
+    if(hrs){
+      document.getElementById('scHours').style.display='block';
+      document.getElementById('scHNum').textContent=hrs.toFixed(1);
+    }
+    document.getElementById('hdBadge').style.display=isHD?'block':'none';
+    cin.disabled=true; cin.classList.add('done');
+    cout.disabled=true; cout.classList.add('done');
+    cinSub.textContent=`${rec.checkIn} pe aaye`;
+    coutSub.textContent=`${rec.checkOut} pe gaye`;
+  }
+}
+
+// ══ CHECK IN ══
+async function doCheckIn(){
+  if(!locOK){toast('error','🚫','Location verify nahi hui — office ke andar raho');return;}
+  const btn=document.getElementById('btnCin');
+  btn.disabled=true; btn.querySelector('.lbl').innerHTML='<span class="spin"></span>';
+  const now=new Date();
+  const params={
+    action:'checkIn',
+    workerId:curUser.worker.id,
+    worker:curUser.worker.name,
+    role:curUser.worker.role,
+    date:now.toLocaleDateString('en-IN'),
+    checkIn:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    location:coords?`${coords.lat.toFixed(5)},${coords.lng.toFixed(5)}`:'N/A'
+  };
+  try{
+    const r=await api(params);
+    if(r.success){
+      toast('success','🟢',`Check-in: ${params.checkIn}`);
+      const rec=allRec.find(x=>x.date===params.date);
+      if(rec){rec.checkIn=params.checkIn;}
+      else{allRec.unshift({...params,checkOut:null});}
+      updateStatusCard(); renderWHist();
+    } else {
+      toast('error','❌', r.error==='Already checked in today'?'Aaj pehle se check-in ho chuka hai!':'Error: '+r.error);
+      btn.disabled=false;
+    }
+  }catch(e){toast('error','❌','Network error');btn.disabled=false;}
+  btn.querySelector('.lbl').textContent='CHECK IN';
+}
+
+// ══ CHECK OUT ══
+async function doCheckOut(){
+  if(!locOK){toast('error','🚫','Location verify nahi hui — office ke andar raho');return;}
+  const btn=document.getElementById('btnCout');
+  btn.disabled=true; btn.querySelector('.lbl').innerHTML='<span class="spin"></span>';
+  const now=new Date();
+  const today=now.toLocaleDateString('en-IN');
+  const params={
+    action:'checkOut',
+    workerId:curUser.worker.id,
+    date:today,
+    checkOut:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    location:coords?`${coords.lat.toFixed(5)},${coords.lng.toFixed(5)}`:'N/A'
+  };
+  try{
+    const r=await api(params);
+    if(r.success){
+      const rec=allRec.find(x=>x.date===today);
+      if(rec)rec.checkOut=params.checkOut;
+      const hrs=rec?calcHours(rec.checkIn,params.checkOut):null;
+      const isHD=hrs&&hrs<HALF_DAY_HOURS();
+      toast(isHD?'info':'success', isHD?'⚡':'🔵', `Check-out: ${params.checkOut}${hrs?` · ${hrs.toFixed(1)} hrs`:''}${isHD?' · Half Day':''}`);
+      updateStatusCard(); renderWHist();
+    } else {
+      toast('error','❌','Error: '+r.error);
+      btn.disabled=false;
+    }
+  }catch(e){toast('error','❌','Network error');btn.disabled=false;}
+  btn.querySelector('.lbl').textContent='CHECK OUT';
+}
+
+// ══ WORKER HISTORY ══
+function renderWHist(){
+  const list=document.getElementById('whist');
+  if(!list)return;
+  list.innerHTML=allRec.length?allRec.map(r=>{
+    const hrs=calcHours(r.checkIn,r.checkOut);
+    const isHD=hrs&&hrs<HALF_DAY_HOURS();
+    return`<div class="hi">
+      <div class="hav">${r.worker.charAt(0)}</div>
+      <div>
+        <div class="hn">${r.date}</div>
+        <div class="hm">${r.role||''}</div>
+      </div>
+      <div class="hi-times">
+        <div class="hi-in">▶ ${r.checkIn||'—'}</div>
+        <div class="hi-out">■ ${r.checkOut||'—'}</div>
+        ${hrs?`<div class="hi-hrs">${hrs.toFixed(1)} hrs ${isHD?'<span class="hd-pill">Half Day</span>':''}</div>`:''}
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty">📋 Koi record nahi</div>';
+}
+
+function swWT(t){
+  document.querySelectorAll('#ss-worker .tab').forEach((e,i)=>e.classList.toggle('on',['checkin','history'][i]===t));
+  document.querySelectorAll('#ss-worker .panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('wp-'+t).classList.add('on');
+}
+
+// ══ LOCATION ══
+function hvs(a,b,c,d){const R=6371000,dL=(c-a)*Math.PI/180,dl=(d-b)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+
+function checkLoc(){
+  if(!navigator.geolocation){setLoc('no','❌','GPS nahi hai','');return;}
+  setLoc('ck','📍','Location check ho rahi hai...','');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    coords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    const la=parseFloat(cfg.officeLat),ln=parseFloat(cfg.officeLng),ra=parseInt(cfg.officeRad)||200;
+    if(!la||!ln){locOK=true;setLoc('ok','📍','Location mili (Office setup pending)',`${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);return;}
+    const d=Math.round(hvs(coords.lat,coords.lng,la,ln));
+    if(d<=ra){locOK=true;setLoc('ok','✅',`Office ke andar — ${d}m`,'Check-in/out allowed ✓');}
+    else{locOK=false;setLoc('no','🚫',`Office se bahar — ${d}m`,`Max ${ra}m. Ghar se block!`);}
+  },()=>{locOK=false;setLoc('no','❌','Location access denied','Browser settings check karein');},{enableHighAccuracy:true,timeout:10000});
+}
+
+function setLoc(t,icon,ti,su){
+  const b=document.getElementById('locbar');if(!b)return;
+  b.className='locbar '+t;
+  document.getElementById('loci').textContent=icon;
+  document.getElementById('loct').textContent=ti;
+  document.getElementById('locs').textContent=su;
+}
+
+// ══ ADMIN ══
+async function initAdmin(){
+  clock();
+  document.getElementById('cfgUrl').value=SCRIPT_URL;
+  document.getElementById('cfgLat').value=cfg.officeLat||'';
+  document.getElementById('cfgLng').value=cfg.officeLng||'';
+  document.getElementById('cfgRad').value=cfg.officeRad||200;
+  document.getElementById('cfgHD').value=HALF_DAY_HOURS();
+  try{const r=await api({action:'getAttendance'});if(r.success)allRec=r.records;}catch(e){}
+  rDash(); rWA();
+}
+
+function rDash(){
+  const act=workers.filter(w=>w.active);
+  const today=new Date().toLocaleDateString('en-IN');
+  const tRec=allRec.filter(r=>r.date===today);
+  const inToday=tRec.filter(r=>r.checkIn);
+  const hdToday=tRec.filter(r=>{const hrs=calcHours(r.checkIn,r.checkOut);return hrs&&hrs<HALF_DAY_HOURS();});
+  document.getElementById('stt').textContent=act.length;
+  document.getElementById('stp').textContent=inToday.length;
+  document.getElementById('sthd').textContent=hdToday.length;
+
+  document.getElementById('todayList').innerHTML=act.map(w=>{
+    const rec=tRec.find(r=>r.workerId===w.id);
+    const hrs=rec?calcHours(rec.checkIn,rec.checkOut):null;
+    const isHD=hrs&&hrs<HALF_DAY_HOURS();
+    let badge,bstyle;
+    if(!rec){badge='⏳ Not In';bstyle='background:rgba(107,107,138,.1);color:var(--mt)';}
+    else if(rec.checkIn&&!rec.checkOut){badge='🟢 Working';bstyle='background:rgba(34,197,94,.15);color:var(--gn)';}
+    else if(isHD){badge='⚡ Half Day';bstyle='background:rgba(245,158,11,.15);color:var(--yw)';}
+    else{badge='✅ Done';bstyle='background:rgba(59,130,246,.15);color:var(--bl)';}
+    return`<div class="hi">
+      <div class="hav">${w.name.charAt(0)}</div>
+      <div><div class="hn">${w.name}</div><div class="hm">${w.id} · ${w.role}</div></div>
+      <div class="hi-times">
+        ${rec?`<div class="hi-in">▶ ${rec.checkIn||'—'}</div><div class="hi-out">■ ${rec.checkOut||'—'}</div>`:''}
+        <div style="${bstyle};padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;margin-top:3px;">${badge}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ PIVOT TABLE ══
+function setPivotDays(d, btn){
+  pivotDays=d;
+  document.querySelectorAll('#ap-pivot .hf').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderPivot();
+}
+
+function renderPivot(){
+  const wrap=document.getElementById('pivotWrap');
+  const act=workers.filter(w=>w.active);
+  if(!act.length){wrap.innerHTML='<div class="empty">Koi worker nahi</div>';return;}
+
+  // Generate date columns (last N days)
+  const dates=[];
+  const today=new Date();
+  const todayStr=today.toLocaleDateString('en-IN');
+  for(let i=pivotDays-1;i>=0;i--){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    dates.push(d.toLocaleDateString('en-IN'));
+  }
+
+  // Format date for display
+  const fmtDate=d=>{
+    const parts=d.split('/');// DD/MM/YYYY
+    const months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${parts[0]} ${months[parseInt(parts[1])]}`;
+  };
+
+  // Build attendance lookup: workerId+date → record
+  const lookup={};
+  allRec.forEach(r=>{lookup[r.workerId+'|'+r.date]=r;});
+
+  let html=`<table class="pivot-table"><thead><tr>
+    <th class="pt-corner">Worker</th>`;
+  dates.forEach(d=>{
+    const isToday=d===todayStr;
+    html+=`<th class="pt-date-hdr ${isToday?'pt-today-col':''}">
+      <div class="pt-date-top">${fmtDate(d)}</div>
+      <div class="pt-date-sub">
+        <span class="pt-sub-cell">In</span>
+        <span class="pt-sub-cell">Out</span>
+      </div>
+    </th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+
+  act.forEach(w=>{
+    html+=`<tr><td class="pt-worker-cell"><div class="pt-worker-name">${w.name}</div><div class="pt-worker-id">${w.id}</div></td>`;
+    dates.forEach(d=>{
+      const rec=lookup[w.id+'|'+d];
+      const hrs=rec?calcHours(rec.checkIn,rec.checkOut):null;
+      const isHD=hrs&&hrs<HALF_DAY_HOURS();
+      if(rec&&rec.checkIn){
+        html+=`<td class="pt-time-cell ${isHD?'pt-hd':''}">
+          <span class="pt-time-in">${rec.checkIn}</span>
+          <span class="pt-time-out">${rec.checkOut||'—'}</span>
+        </td>`;
+      } else {
+        html+=`<td class="pt-time-cell"><span class="pt-time-in pt-empty">—</span><span class="pt-time-out pt-empty">—</span></td>`;
+      }
+    });
+    html+=`</tr>`;
+  });
+
+  html+=`</tbody></table>`;
+  wrap.innerHTML=html;
+}
+
+// ══ WORKER ADMIN ══
+function rWA(){
+  document.getElementById('walist').innerHTML=workers.map(w=>`
+    <div class="wai">
+      <div class="wat">
+        <div class="waid2">${w.id}</div>
+        <div class="wan">${w.name}</div>
+        <div class="wad ${w.active?'':'off'}"></div>
+      </div>
+      <div class="wag">
+        <div class="waf"><span class="wal">Role</span><span class="wav">${w.role}</span></div>
+        <div class="waf"><span class="wal">Username</span><span class="wav">${w.username}</span></div>
+        <div class="waf"><span class="wal">Password</span><span class="wapw">${w.password}</span></div>
+        <div class="waf"><span class="wal">Status</span><span class="wav" style="color:${w.active?'var(--gn)':'var(--mt)'}">${w.active?'Active':'Inactive'}</span></div>
+      </div>
+      <div class="waa">
+        <button class="wab ed" onclick="oe('${w.id}')">✏️ Edit</button>
+        <button class="wab tg ${w.active?'':'off'}" onclick="tw('${w.id}')">${w.active?'🔴 Deactivate':'🟢 Activate'}</button>
+        <button class="wab dl" onclick="dw('${w.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function addW(){
+  const n=document.getElementById('nwN').value.trim(),r=document.getElementById('nwR').value.trim()||'Worker',u=document.getElementById('nwU').value.trim(),p=document.getElementById('nwP').value.trim();
+  if(!n||!u||!p){toast('error','⚠️','Sab fields bharein!');return;}
+  const btn=document.querySelector('#ap-workers .btn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Adding...';
+  try{
+    const res=await api({action:'addWorker',name:n,role:r,username:u,password:p});
+    if(res.success){const wr=await api({action:'getWorkers'});workers=wr.workers;['nwN','nwR','nwU','nwP'].forEach(id=>document.getElementById(id).value='');rWA();rDash();toast('success','✅',`${n} add ho gaya! ID: ${res.id}`);}
+    else toast('error','❌',res.error);
+  }catch(e){toast('error','❌','Error: '+e.message);}
+  btn.disabled=false;btn.textContent='+ Worker Add Karein';
+}
+
+async function tw(id){
+  try{const r=await api({action:'toggleWorker',id});if(r.success){const w=workers.find(x=>x.id===id);if(w){w.active=r.active;rWA();rDash();toast('success',r.active?'🟢':'🔴',`${w.name} ${r.active?'activated':'deactivated'}`);}}
+  }catch(e){}
+}
+
+async function dw(id){
+  const w=workers.find(x=>x.id===id);
+  if(!confirm(`${w?.name} ko delete karna hai?`))return;
+  try{const r=await api({action:'deleteWorker',id});if(r.success){workers=workers.filter(x=>x.id!==id);rWA();rDash();toast('success','🗑',`${w?.name} delete ho gaya`);}}catch(e){}
+}
+
+function oe(id){const w=workers.find(x=>x.id===id);if(!w)return;document.getElementById('eId').value=w.id;document.getElementById('eN').value=w.name;document.getElementById('eR').value=w.role;document.getElementById('eU').value=w.username;document.getElementById('eP').value=w.password;document.getElementById('em').classList.add('op');}
+function cm(){document.getElementById('em').classList.remove('op');}
+async function se(){
+  const id=document.getElementById('eId').value,n=document.getElementById('eN').value,r=document.getElementById('eR').value,u=document.getElementById('eU').value,p=document.getElementById('eP').value;
+  try{const res=await api({action:'updateWorker',id,name:n,role:r,username:u,password:p});if(res.success){const w=workers.find(x=>x.id===id);if(w){w.name=n;w.role=r;w.username=u;w.password=p;}cm();rWA();toast('success','✅','Worker update ho gaya!');}}catch(e){}
+}
+
+async function saveCfg(){
+  const np=document.getElementById('cfgAp').value.trim();
+  try{const p={action:'saveConfig'};if(np)p.adminPw=np;await api(p);if(np){cfg.adminPw=np;document.getElementById('cfgAp').value='';}toast('success','💾','Settings save ho gayi!');}catch(e){}
+}
+async function saveLoc(){
+  const la=document.getElementById('cfgLat').value,ln=document.getElementById('cfgLng').value,ra=document.getElementById('cfgRad').value||200;
+  try{await api({action:'saveConfig',officeLat:la,officeLng:ln,officeRad:ra});cfg.officeLat=la;cfg.officeLng=ln;cfg.officeRad=ra;toast('success','📍','Office location save ho gaya!');}catch(e){}
+}
+function saveHD(){const v=document.getElementById('cfgHD').value||5;localStorage.setItem('sy_hd_hours',v);toast('success','⚡',`Half day: ${v} hours se kam = half day`);}
+function useLoc(){if(!navigator.geolocation){toast('error','❌','GPS nahi hai');return;}navigator.geolocation.getCurrentPosition(p=>{document.getElementById('cfgLat').value=p.coords.latitude.toFixed(6);document.getElementById('cfgLng').value=p.coords.longitude.toFixed(6);toast('success','🎯','Current location fill ho gayi!');});}
+
+function swAT(t){
+  document.querySelectorAll('#ss-admin .tab').forEach((e,i)=>e.classList.toggle('on',['dash','pivot','workers','settings'][i]===t));
+  document.querySelectorAll('#ss-admin .panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('ap-'+t).classList.add('on');
+  if(t==='pivot')renderPivot();
+}
+
+// ══ CLOCK ══
+function clock(){const now=new Date(),D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],ds=`${now.getDate()} ${M[now.getMonth()]} ${now.getFullYear()}`,ts=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});[['wdt','wtm','wdy'],['adt','atm','ady']].forEach(([d,t,dy])=>{const de=document.getElementById(d),te=document.getElementById(t),dye=document.getElementById(dy);if(de)de.textContent=ds;if(te)te.textContent=ts;if(dye)dye.textContent=D[now.getDay()];});}
+
+// ══ TOAST ══
+function toast(type,icon,msg){const t=document.getElementById('toast');document.getElementById('ti').textContent=icon;document.getElementById('tm2').textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),4000);}
+
+// ══ START ══
+clock();setInterval(clock,1000);setInterval(()=>{if(curUser?.type==='worker')checkLoc();},30000);init();
+</script>
+</body>
+</html>
